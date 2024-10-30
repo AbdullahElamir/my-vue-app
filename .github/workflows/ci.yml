@@ -24,6 +24,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Build the project to generate `dist` folder
+      # Step 4: Run linter to check code quality
+      - name: Run linter
+        run: npm run lint
+
+      # Step 5: Build the project to generate `dist` folder
       - name: Build project
         run: npm run build
