@@ -5,14 +5,13 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
   # Optional manual trigger
   workflow_dispatch:
 
 permissions:
-  contents: read        # Allows reading repository contents
-  id-token: write       # Enables id-token permissions required for deploy-pages
-  pages: write          # Allows write access to GitHub Pages for deployment
+  contents: read          # Allows reading repository contents
+  id-token: write         # Enables ID token permissions required for deploy-pages
+  pages: write            # Allows write access to GitHub Pages for deployment
 
 jobs:
   build:
@@ -23,28 +22,42 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
 
     steps:
-      - uses: actions/checkout@v4
+      # Step 1: Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js environment with caching
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
+
+      # Step 4: Run linter to check code quality
       - name: Run linter
         run: npm run lint
+
+      # Step 5: Build the Vue.js project for production
       - name: Build project
         run: npm run build
+
+      # Step 6: Upload build artifact for GitHub Pages deployment
       - name: Upload artifact for GitHub Pages
         if: ${{ github.ref == 'refs/heads/master' }}
         uses: actions/upload-pages-artifact@v1
         with:
-          path: dist
+          path: dist  # Path to the built Vue.js project
 
   deploy:
+    # Runs on a Windows-based runner
     runs-on: windows-latest
-    needs: build
+    needs: build  # Ensure the deploy job only runs after the build job
 
     steps:
+      # Step 7: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
