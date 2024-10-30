@@ -1,24 +1,33 @@
-name: CI/CD for Vue.js App
+name: Vue.js CI/CD with GitHub Pages
 
 on:
   push:
-    branches:
-      - master
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # Deploy to GitHub Pages when code is pushed to master branch
+  workflow_dispatch:
+    branches: [ "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
     steps:
       # Step 1: Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js environment
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      # Step 2: Set up Node.js environment with caching
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       # Step 3: Install dependencies
       - name: Install dependencies
@@ -28,6 +37,26 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      # Step 5: Build the project to generate `dist` folder
+      # Step 5: Build the Vue.js project
       - name: Build project
         run: npm run build
+
+      # Step 6: Run tests
+      - name: Run tests
+        run: npm test
+
+      # Step 7: Upload `dist` folder as GitHub Pages artifact
+      - name: Upload artifact for GitHub Pages
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
