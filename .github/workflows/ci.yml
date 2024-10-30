@@ -9,10 +9,10 @@ on:
   # Optional manual trigger
   workflow_dispatch:
 
-# Add permissions for GITHUB_TOKEN here
 permissions:
-  contents: read       # Allows reading repository contents
-  id-token: write      # Enables id-token permissions required for deploy-pages
+  contents: read        # Allows reading repository contents
+  id-token: write       # Enables id-token permissions required for deploy-pages
+  pages: write          # Allows write access to GitHub Pages for deployment
 
 jobs:
   build:
