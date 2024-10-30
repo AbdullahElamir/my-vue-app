@@ -27,26 +27,3 @@ jobs:
       # Step 4: Build the project to generate `dist` folder
       - name: Build project
         run: npm run build
-
-      # Step 5: Deploy to server using scp
-      - name: Deploy to server
-        if: success()
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          SERVER_PATH: ${{ secrets.SERVER_PATH }} # Path on server to copy files to
-        run: |
-          # Set up SSH key
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-
-          # Use rsync to deploy `dist` folder to the server
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
-
-          # Optional: Restart http-server on the server
-          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
-            # Kill existing http-server process (if any)
-            pkill -f http-server || true
-            # Start http-server on the specified directory and port
-            nohup http-server $SERVER_PATH -p 8080 &
-          EOF
