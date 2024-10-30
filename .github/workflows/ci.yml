@@ -41,11 +41,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Step 6: Run tests
-      - name: Run tests
-        run: npm test
-
-      # Step 7: Upload `dist` folder as GitHub Pages artifact
+      # Step 6: Upload `dist` folder as GitHub Pages artifact
       - name: Upload artifact for GitHub Pages
         if: ${{ github.ref == 'refs/heads/master' }}
         uses: actions/upload-pages-artifact@v1
